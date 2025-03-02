@@ -15,7 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.example.opendatajabar.data.DataEntity
 import com.example.opendatajabar.viewmodel.DataViewModel
 
 @Composable
@@ -23,7 +27,8 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
     val dataList by viewModel.dataList.observeAsState(emptyList())
     val context = LocalContext.current
 
-
+    var showDialog by remember { mutableStateOf(false) } // State untuk pop-up
+    var selectedItem by remember { mutableStateOf<DataEntity?>(null) } // Data yang akan dihapus
 
     if (dataList.isEmpty()) {
         Box(
@@ -33,8 +38,6 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
             Text(text = "No Data Available", style = MaterialTheme.typography.headlineMedium)
         }
     } else {
-
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -88,15 +91,16 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
                             }
 
                             Spacer(modifier = Modifier.width(5.dp))
+
                             Button(
                                 onClick = {
-                                    Toast.makeText(
-                                        context,
-                                        "Data berhasil dihapus!",
-                                        Toast.LENGTH_SHORT).show()
-                                    viewModel.deleteData(item)
+                                    selectedItem = item // Simpan item yang akan dihapus
+                                    showDialog = true // Tampilkan pop-up konfirmasi
                                 },
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error
+                                )
                             ) {
                                 Text(text = "Delete")
                             }
@@ -105,5 +109,34 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
                 }
             }
         }
+    }
+
+    // Dialog konfirmasi hapus data
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Konfirmasi Hapus") },
+            text = { Text("Apakah Anda Yakin Untuk Menghapus Data Ini?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        selectedItem?.let { viewModel.deleteData(it) }
+                        showDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Ya")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("Tidak")
+                }
+            }
+        )
     }
 }

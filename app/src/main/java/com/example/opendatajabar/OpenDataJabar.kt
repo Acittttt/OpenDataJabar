@@ -100,6 +100,8 @@ private fun BottomBar(
 ) {
     NavigationBar(
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.primaryContainer, // Warna latar belakang navbar
+        contentColor = MaterialTheme.colorScheme.primary // Warna konten di dalam navbar
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
@@ -125,8 +127,8 @@ private fun BottomBar(
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedIconColor = MaterialTheme.colorScheme.primaryContainer,
+                    indicatorColor = MaterialTheme.colorScheme.primary,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )

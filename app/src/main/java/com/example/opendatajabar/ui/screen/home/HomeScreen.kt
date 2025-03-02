@@ -59,7 +59,7 @@ fun HomeScreen(viewModel: DataViewModel) {
                 Text(
                     text = "Data Tersimpan",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))

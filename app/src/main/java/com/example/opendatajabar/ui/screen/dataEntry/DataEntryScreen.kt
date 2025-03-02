@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.opendatajabar.viewmodel.DataViewModel
@@ -27,6 +28,7 @@ fun DataEntryScreen(viewModel: DataViewModel) {
     var total by remember { mutableStateOf("") }
     var satuan by remember { mutableStateOf("") }
     var tahun by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) } // State untuk menampilkan pop-up
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -88,30 +90,50 @@ fun DataEntryScreen(viewModel: DataViewModel) {
             )
             Button(
                 onClick = {
-                    viewModel.insertData(
-                        kodeProvinsi = kodeProvinsi,
-                        namaProvinsi = namaProvinsi,
-                        kodeKabupatenKota = kodeKabupatenKota,
-                        namaKabupatenKota = namaKabupatenKota,
-                        total = total,
-                        satuan = satuan,
-                        tahun = tahun
-                    )
-                    Toast.makeText(context, "Data berhasil ditambahkan!", Toast.LENGTH_SHORT).show()
+                    if (kodeProvinsi.isBlank() || namaProvinsi.isBlank() ||
+                        kodeKabupatenKota.isBlank() || namaKabupatenKota.isBlank() ||
+                        total.isBlank() || satuan.isBlank() || tahun.isBlank()
+                    ) {
+                        showDialog = true
+                    } else {
+                        viewModel.insertData(
+                            kodeProvinsi = kodeProvinsi,
+                            namaProvinsi = namaProvinsi,
+                            kodeKabupatenKota = kodeKabupatenKota,
+                            namaKabupatenKota = namaKabupatenKota,
+                            total = total,
+                            satuan = satuan,
+                            tahun = tahun
+                        )
 
-                    // Reset form setelah submit
-                    kodeProvinsi = ""
-                    namaProvinsi = ""
-                    kodeKabupatenKota = ""
-                    namaKabupatenKota = ""
-                    total = ""
-                    satuan = ""
-                    tahun = ""
+                        kodeProvinsi = ""
+                        namaProvinsi = ""
+                        kodeKabupatenKota = ""
+                        namaKabupatenKota = ""
+                        total = ""
+                        satuan = ""
+                        tahun = ""
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Submit Data")
             }
         }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                Button(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Input Tidak Lengkap") },
+            text = { Text("Harap isi semua data sebelum menyimpan!") }
+        )
     }
 }
