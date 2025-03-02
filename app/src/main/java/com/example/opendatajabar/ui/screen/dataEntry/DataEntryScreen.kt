@@ -88,7 +88,6 @@ fun DataEntryScreen(viewModel: DataViewModel) {
             )
             Button(
                 onClick = {
-                    // Memanggil fungsi insertData pada ViewModel
                     viewModel.insertData(
                         kodeProvinsi = kodeProvinsi,
                         namaProvinsi = namaProvinsi,
@@ -99,6 +98,15 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                         tahun = tahun
                     )
                     Toast.makeText(context, "Data berhasil ditambahkan!", Toast.LENGTH_SHORT).show()
+
+                    // Reset form setelah submit
+                    kodeProvinsi = ""
+                    namaProvinsi = ""
+                    kodeKabupatenKota = ""
+                    namaKabupatenKota = ""
+                    total = ""
+                    satuan = ""
+                    tahun = ""
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
