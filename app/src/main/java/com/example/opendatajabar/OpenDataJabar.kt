@@ -27,6 +27,7 @@ import com.example.opendatajabar.ui.screen.dataList.DataListScreen
 import com.example.opendatajabar.ui.screen.edit.EditScreen
 import com.example.opendatajabar.ui.screen.home.HomeScreen
 import com.example.opendatajabar.ui.screen.profile.ProfileScreen
+import com.example.opendatajabar.ui.theme.OpenDataJabarTheme
 import com.example.opendatajabar.viewmodel.DataViewModel
 import com.example.opendatajabar.viewmodel.ProfileViewModel
 
@@ -87,17 +88,17 @@ private fun BottomBar(
         val currentRoute = navBackStackEntry?.destination?.route
         val navigationItems = listOf(
             NavigationItem(
-                title = "home",
+                title = "Home",
                 icon = Icons.Default.Home,
                 screen = Screen.Home
             ),
             NavigationItem(
-                title = "entry",
+                title = "Entry Data",
                 icon = Icons.Default.Add,
                 screen = Screen.DataEntry
             ),
             NavigationItem(
-                title = "list",
+                title = "List",
                 icon = Icons.Default.List,
                 screen = Screen.DataList
             ),
@@ -116,7 +117,6 @@ private fun BottomBar(
                     )
                 },
                 label = { Text(item.title) },
-//                selected = false,
                 selected = currentRoute == item.screen.route,
                 onClick = {
                     navController.navigate(item.screen.route) {
@@ -126,18 +126,23 @@ private fun BottomBar(
                         restoreState = true
                         launchSingleTop = true
                     }
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
         }
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun opendatajabarAPPPreview() {
-//    Project4Theme {
-//        Project4App(
-//            viewModel = viewModel()
-//        )
-//    }
-//}
+@Preview(showBackground = true)
+@Composable
+fun opendatajabarAPPPreview() {
+    OpenDataJabarTheme {
+        DataOpenJabarApp(
+            viewModel = viewModel()
+        )
+    }
+}
