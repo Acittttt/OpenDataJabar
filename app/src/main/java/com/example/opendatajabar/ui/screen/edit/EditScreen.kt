@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.opendatajabar.data.local.DataEntity
 import com.example.opendatajabar.viewmodel.DataViewModel
 
 @Composable
@@ -26,7 +27,22 @@ fun EditScreen(viewModel: DataViewModel, navController: NavController, dataId: I
     var satuan by remember { mutableStateOf("") }
     var tahun by remember { mutableStateOf("") }
 
-    var showDialog by remember { mutableStateOf(false) } // State untuk pop-up error
+    var showDialog by remember { mutableStateOf(false) }
+    var isDataLoaded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(dataId) {
+        val data = viewModel.getDataById(dataId)
+        data?.let {
+            kodeProvinsi = it.kodeProvinsi.toString()
+            namaProvinsi = it.namaProvinsi
+            kodeKabupatenKota = it.kodeKabupatenKota.toString()
+            namaKabupatenKota = it.namaKabupatenKota
+            total = it.rataRataLamaSekolah.toString()
+            satuan = it.satuan
+            tahun = it.tahun.toString()
+            isDataLoaded = true
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -45,16 +61,17 @@ fun EditScreen(viewModel: DataViewModel, navController: NavController, dataId: I
 
             OutlinedTextField(
                 value = kodeProvinsi,
-                onValueChange = { kodeProvinsi = it },
+                onValueChange = {},
                 label = { Text("Kode Provinsi") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                readOnly = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = namaProvinsi,
-                onValueChange = { namaProvinsi = it },
+                onValueChange = {},
                 label = { Text("Nama Provinsi") },
+                readOnly = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -62,7 +79,7 @@ fun EditScreen(viewModel: DataViewModel, navController: NavController, dataId: I
                 value = kodeKabupatenKota,
                 onValueChange = { kodeKabupatenKota = it },
                 label = { Text("Kode Kabupaten/Kota") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                readOnly = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -70,6 +87,7 @@ fun EditScreen(viewModel: DataViewModel, navController: NavController, dataId: I
                 value = namaKabupatenKota,
                 onValueChange = { namaKabupatenKota = it },
                 label = { Text("Nama Kabupaten/Kota") },
+                readOnly = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -98,43 +116,35 @@ fun EditScreen(viewModel: DataViewModel, navController: NavController, dataId: I
 
             Button(
                 onClick = {
-                    if (kodeProvinsi.isBlank() || namaProvinsi.isBlank() ||
-                        kodeKabupatenKota.isBlank() || namaKabupatenKota.isBlank() ||
+                    if (kodeKabupatenKota.isBlank() || namaKabupatenKota.isBlank() ||
                         total.isBlank() || satuan.isBlank() || tahun.isBlank()
                     ) {
                         showDialog = true
                     } else {
-                        viewModel.insertData(
-                            kodeProvinsi = kodeProvinsi.toIntOrNull() ?: 0,
-                            namaProvinsi = namaProvinsi,
-                            kodeKabupatenKota = kodeKabupatenKota.toIntOrNull() ?: 0,
-                            namaKabupatenKota = namaKabupatenKota,
-                            total = total.toDoubleOrNull() ?: 0.0,
-                            satuan = satuan,
-                            tahun = tahun.toIntOrNull() ?: 0
+                        viewModel.updateData(
+                            DataEntity(
+                                id = dataId,
+                                kodeProvinsi = kodeProvinsi.toInt(),
+                                namaProvinsi = namaProvinsi,
+                                kodeKabupatenKota = kodeKabupatenKota.toInt(),
+                                namaKabupatenKota = namaKabupatenKota,
+                                rataRataLamaSekolah = total.toDouble(),
+                                satuan = satuan,
+                                tahun = tahun.toInt()
+                            )
                         )
 
-                        // Reset input setelah submit
-                        kodeProvinsi = ""
-                        namaProvinsi = ""
-                        kodeKabupatenKota = ""
-                        namaKabupatenKota = ""
-                        total = ""
-                        satuan = ""
-                        tahun = ""
-
-                        // Navigasi kembali setelah data disimpan
                         navController.popBackStack()
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isDataLoaded // Hanya aktif jika data sudah dimuat
             ) {
                 Text("Simpan Perubahan")
             }
         }
     }
 
-    // Dialog error jika ada input kosong
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },

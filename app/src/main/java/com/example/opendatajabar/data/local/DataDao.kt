@@ -15,7 +15,7 @@ interface DataDao {
     suspend fun update(data: DataEntity)
 
     @Query("SELECT * FROM data_table ORDER BY id DESC")
-    fun getAll(): LiveData<List<DataEntity>>
+    suspend fun getAll(): List<DataEntity>
 
     @Query("SELECT * FROM data_table WHERE id = :dataId")
     suspend fun getById(dataId: Int): DataEntity?

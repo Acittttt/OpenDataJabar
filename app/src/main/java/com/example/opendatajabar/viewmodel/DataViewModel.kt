@@ -14,10 +14,10 @@ import kotlinx.coroutines.withContext
 
 class DataViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).dataDao()
-    private val apiService = RetrofitClient.instance  // ✅ Fix: Panggil `instance` dari RetrofitClient
+    private val apiService = RetrofitClient.instance
 
-    private val _rowCount = MutableLiveData<Int>(0)
-    val rowCount: LiveData<Int> = _rowCount
+    private val _rowCount = MutableLiveData<Int>()
+    val rowCount: LiveData<Int> get() = _rowCount
 
     private val _dataList = MutableLiveData<List<DataEntity>>()
     val dataList: LiveData<List<DataEntity>> = _dataList
@@ -25,9 +25,13 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
+    private val _apiError = MutableLiveData<String?>()
+    val apiError: LiveData<String?> = _apiError
+
     init {
-        fetchDataFromApi()
+        fetchLocalData()
         fetchRowCount()
+        fetchDataFromApi()
     }
 
     fun fetchRowCount() {
@@ -39,68 +43,68 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun fetchLocalData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val localData = dao.getAll()
+            withContext(Dispatchers.Main) {
+                _dataList.value = localData
+            }
+        }
+    }
+
     fun fetchDataFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.postValue(true)
             try {
-                val response = apiService.getData()  // ✅ Fix: Panggil API dengan benar
-                if (response.error == 0) {  // ✅ Fix: Pastikan respon API benar
+                val response = apiService.getData()
+                if (response.error == 0) {
+                    withContext(Dispatchers.Main) {
+                        _dataList.value = response.data
+                    }
                     dao.insertAll(response.data) // Simpan ke Room Database
-                    _dataList.postValue(response.data) // Update LiveData
+                } else {
+                    _apiError.postValue("Error: ${response.message}")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                _apiError.postValue("Failed to fetch data: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
-    fun insertData(
-        kodeProvinsi: Int,
-        namaProvinsi: String,
-        kodeKabupatenKota: Int,
-        namaKabupatenKota: String,
-        total: Double,
-        satuan: String,
-        tahun: Int
-    ) {
+    fun insertData(data: DataEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            val entity = DataEntity(
-                kodeProvinsi = kodeProvinsi,
-                namaProvinsi = namaProvinsi,
-                kodeKabupatenKota = kodeKabupatenKota,
-                namaKabupatenKota = namaKabupatenKota,
-                rataRataLamaSekolah = total,
-                satuan = satuan,
-                tahun = tahun
-            )
-            dao.insert(entity)
+            dao.insert(data)
 
-            val count = dao.getCount() // Ambil jumlah data terbaru
+            val updatedList = dao.getAll()
             withContext(Dispatchers.Main) {
-                _rowCount.value = count
+                _dataList.value = updatedList
+                _rowCount.value = updatedList.size
             }
-
-            fetchDataFromApi() // Ambil data terbaru setelah insert
         }
     }
 
     fun updateData(data: DataEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.update(data)
-            fetchDataFromApi() // Refresh data setelah update
+
+            val updatedList = dao.getAll()
+            withContext(Dispatchers.Main) {
+                _dataList.value = updatedList
+            }
         }
     }
 
     fun deleteData(data: DataEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.delete(data)
-            val count = dao.getCount()
+
+            val updatedList = dao.getAll()
             withContext(Dispatchers.Main) {
-                _rowCount.value = count
+                _dataList.value = updatedList
+                _rowCount.value = updatedList.size
             }
-            fetchDataFromApi() // Ambil data terbaru setelah delete
         }
     }
 

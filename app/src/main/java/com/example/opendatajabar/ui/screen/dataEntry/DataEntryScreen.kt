@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.opendatajabar.data.local.DataEntity
 import com.example.opendatajabar.viewmodel.DataViewModel
 
 @Composable
@@ -48,6 +49,7 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                 value = kodeProvinsi,
                 onValueChange = { kodeProvinsi = it },
                 label = { Text("Kode Provinsi") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
@@ -60,6 +62,7 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                 value = kodeKabupatenKota,
                 onValueChange = { kodeKabupatenKota = it },
                 label = { Text("Kode Kabupaten/Kota") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
@@ -96,23 +99,31 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                     ) {
                         showDialog = true
                     } else {
-                        viewModel.insertData(
-                            kodeProvinsi = kodeProvinsi.toIntOrNull() ?: 0,
-                            namaProvinsi = namaProvinsi,
-                            kodeKabupatenKota = kodeKabupatenKota.toIntOrNull() ?: 0,
-                            namaKabupatenKota = namaKabupatenKota,
-                            total = total.toDoubleOrNull() ?: 0.0,
-                            satuan = satuan,
-                            tahun = tahun.toIntOrNull() ?: 0
-                        )
+                        try {
+                            val data = DataEntity(
+                                kodeProvinsi = kodeProvinsi.toInt(),
+                                namaProvinsi = namaProvinsi,
+                                kodeKabupatenKota = kodeKabupatenKota.toInt(),
+                                namaKabupatenKota = namaKabupatenKota,
+                                rataRataLamaSekolah = total.toDouble(),
+                                satuan = satuan,
+                                tahun = tahun.toInt()
+                            )
 
-                        kodeProvinsi = ""
-                        namaProvinsi = ""
-                        kodeKabupatenKota = ""
-                        namaKabupatenKota = ""
-                        total = ""
-                        satuan = ""
-                        tahun = ""
+                            viewModel.insertData(data)
+
+                            kodeProvinsi = ""
+                            namaProvinsi = ""
+                            kodeKabupatenKota = ""
+                            namaKabupatenKota = ""
+                            total = ""
+                            satuan = ""
+                            tahun = ""
+
+                            Toast.makeText(context, "Data berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+                        } catch (e: NumberFormatException) {
+                            Toast.makeText(context, "Harap masukkan angka yang valid", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

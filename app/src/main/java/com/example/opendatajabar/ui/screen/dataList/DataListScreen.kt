@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -23,7 +22,6 @@ private const val TAG = "DataListScreen"
 
 @Composable
 fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
-    // Tambahkan logcat di awal composable
     Log.d(TAG, "DataListScreen composable started")
 
     val dataList by viewModel.dataList.observeAsState(emptyList())
@@ -31,7 +29,6 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Log status data dan loading
     LaunchedEffect(dataList, isLoading) {
         Log.d(TAG, "Data state changed - isLoading: $isLoading, dataList size: ${dataList.size}")
         if (dataList.isNotEmpty()) {
@@ -90,7 +87,6 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
         }
     }
 
-    // Dialog konfirmasi hapus data
     DeleteConfirmationDialog(
         showDialog = showDialog,
         onDismiss = { showDialog = false },
@@ -106,11 +102,8 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
         }
     )
 
-    // Tambahkan efek untuk memastikan data dimuat saat composable pertama kali dibuat
     DisposableEffect(Unit) {
         Log.d(TAG, "DataListScreen entered composition, checking if data needs to be fetched")
-        // Tambahkan kode di sini jika perlu memastikan data dimuat
-        // Misalnya: if (dataList.isEmpty() && !isLoading) viewModel.fetchData()
 
         onDispose {
             Log.d(TAG, "DataListScreen leaving composition")
