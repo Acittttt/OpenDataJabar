@@ -29,23 +29,60 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(dataList, isLoading) {
-        Log.d(TAG, "Data state changed - isLoading: $isLoading, dataList size: ${dataList.size}")
-        if (dataList.isNotEmpty()) {
-            Log.d(TAG, "Sample first item: ${dataList.first()}")
-        }
-    }
-
     var showDialog by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf<DataEntity?>(null) }
+
+    // **Filter State**
+    var selectedFilter by remember { mutableStateOf("Semua") }
+    val uniqueKabupatenKota = remember(dataList) {
+        listOf("Semua") + dataList.map { it.namaKabupatenKota }.distinct()
+    }
+
+    // **Filtered Data**
+    val filteredData = remember(dataList, selectedFilter) {
+        if (selectedFilter == "Semua") dataList else dataList.filter { it.namaKabupatenKota == selectedFilter }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+        ) {
+            // **Dropdown Filter**
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Filter:",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                DropdownMenuFilter(
+                    selectedFilter = selectedFilter,
+                    options = uniqueKabupatenKota,
+                    onFilterSelected = { selectedFilter = it }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // **Jumlah Data**
+            Text(
+                text = "Jumlah Data: ${filteredData.size}",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             when {
                 isLoading -> {
-                    Log.d(TAG, "Showing loading indicator")
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -53,8 +90,7 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
                         CircularProgressIndicator()
                     }
                 }
-                dataList.isEmpty() -> {
-                    Log.d(TAG, "Showing empty state - no data available")
+                filteredData.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -63,15 +99,11 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
                     }
                 }
                 else -> {
-                    Log.d(TAG, "Rendering LazyColumn with ${dataList.size} items")
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
-                        items(dataList) { item ->
-                            Log.d(TAG, "Rendering item with id: ${item.id}, name: ${item.namaProvinsi}")
+                        items(filteredData) { item ->
                             DataItemCard(
                                 item = item,
                                 onEditClick = { navController.navigate("edit/${item.id}") },
@@ -87,12 +119,12 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
         }
     }
 
+    // **Delete Confirmation Dialog**
     DeleteConfirmationDialog(
         showDialog = showDialog,
         onDismiss = { showDialog = false },
         onConfirm = {
             selectedItem?.let {
-                Log.d(TAG, "Deleting item with id: ${it.id}")
                 viewModel.deleteData(it)
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("Data berhasil dihapus")
@@ -101,16 +133,43 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
             showDialog = false
         }
     )
+}
 
-    DisposableEffect(Unit) {
-        Log.d(TAG, "DataListScreen entered composition, checking if data needs to be fetched")
+// **Dropdown Filter Composable**
+@Composable
+fun DropdownMenuFilter(
+    selectedFilter: String,
+    options: List<String>,
+    onFilterSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
 
-        onDispose {
-            Log.d(TAG, "DataListScreen leaving composition")
+    Box {
+        Button(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(selectedFilter)
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { filter ->
+                DropdownMenuItem(
+                    text = { Text(filter) },
+                    onClick = {
+                        onFilterSelected(filter)
+                        expanded = false
+                    }
+                )
+            }
         }
     }
 }
 
+// **DataItemCard Composable**
 @Composable
 fun DataItemCard(
     item: DataEntity,
@@ -150,24 +209,15 @@ fun DataItemCard(
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.End
             ) {
-                Button(
-                    onClick = onEditClick,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
+                Button(onClick = onEditClick) {
                     Text(text = "Edit")
                 }
-
                 Spacer(modifier = Modifier.width(5.dp))
-
                 Button(
                     onClick = onDeleteClick,
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text(text = "Delete")
                 }
@@ -176,6 +226,7 @@ fun DataItemCard(
     }
 }
 
+// **Delete Confirmation Dialog Composable**
 @Composable
 fun DeleteConfirmationDialog(
     showDialog: Boolean,
@@ -188,12 +239,7 @@ fun DeleteConfirmationDialog(
             title = { Text("Konfirmasi Hapus") },
             text = { Text("Apakah Anda Yakin Untuk Menghapus Data Ini?") },
             confirmButton = {
-                Button(
-                    onClick = onConfirm,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
+                Button(onClick = onConfirm, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
                     Text("Ya")
                 }
             },
