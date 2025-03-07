@@ -6,8 +6,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.opendatajabar.data.AppDatabase
-import com.example.opendatajabar.data.ProfileEntity
+import com.example.opendatajabar.data.local.AppDatabase
+import com.example.opendatajabar.data.local.ProfileEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

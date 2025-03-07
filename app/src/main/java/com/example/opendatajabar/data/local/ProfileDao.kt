@@ -1,4 +1,4 @@
-package com.example.opendatajabar.data
+package com.example.opendatajabar.data.local
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

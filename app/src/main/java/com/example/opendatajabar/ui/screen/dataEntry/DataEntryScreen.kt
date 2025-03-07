@@ -97,13 +97,13 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                         showDialog = true
                     } else {
                         viewModel.insertData(
-                            kodeProvinsi = kodeProvinsi,
+                            kodeProvinsi = kodeProvinsi.toIntOrNull() ?: 0,
                             namaProvinsi = namaProvinsi,
-                            kodeKabupatenKota = kodeKabupatenKota,
+                            kodeKabupatenKota = kodeKabupatenKota.toIntOrNull() ?: 0,
                             namaKabupatenKota = namaKabupatenKota,
-                            total = total,
+                            total = total.toDoubleOrNull() ?: 0.0,
                             satuan = satuan,
-                            tahun = tahun
+                            tahun = tahun.toIntOrNull() ?: 0
                         )
 
                         kodeProvinsi = ""
