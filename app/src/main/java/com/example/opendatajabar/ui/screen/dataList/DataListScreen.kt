@@ -32,13 +32,11 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf<DataEntity?>(null) }
 
-    // **Filter State**
     var selectedFilter by remember { mutableStateOf("Semua") }
     val uniqueKabupatenKota = remember(dataList) {
         listOf("Semua") + dataList.map { it.namaKabupatenKota }.distinct()
     }
 
-    // **Filtered Data**
     val filteredData = remember(dataList, selectedFilter) {
         if (selectedFilter == "Semua") dataList else dataList.filter { it.namaKabupatenKota == selectedFilter }
     }
@@ -52,7 +50,6 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            // **Dropdown Filter**
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -72,7 +69,6 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // **Jumlah Data**
             Text(
                 text = "Jumlah Data: ${filteredData.size}",
                 style = MaterialTheme.typography.bodyLarge,
@@ -119,7 +115,6 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
         }
     }
 
-    // **Delete Confirmation Dialog**
     DeleteConfirmationDialog(
         showDialog = showDialog,
         onDismiss = { showDialog = false },
@@ -135,7 +130,6 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
     )
 }
 
-// **Dropdown Filter Composable**
 @Composable
 fun DropdownMenuFilter(
     selectedFilter: String,
@@ -169,7 +163,6 @@ fun DropdownMenuFilter(
     }
 }
 
-// **DataItemCard Composable**
 @Composable
 fun DataItemCard(
     item: DataEntity,
@@ -226,7 +219,6 @@ fun DataItemCard(
     }
 }
 
-// **Delete Confirmation Dialog Composable**
 @Composable
 fun DeleteConfirmationDialog(
     showDialog: Boolean,

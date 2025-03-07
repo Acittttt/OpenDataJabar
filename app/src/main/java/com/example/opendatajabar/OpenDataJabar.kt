@@ -22,7 +22,7 @@ import com.example.opendatajabar.ui.navigation.NavigationItem
 import com.example.opendatajabar.ui.navigation.Screen
 import com.example.opendatajabar.ui.screen.dataEntry.DataEntryScreen
 import com.example.opendatajabar.ui.screen.dataList.DataListScreen
-import com.example.opendatajabar.ui.screen.edit.EditScreen
+import com.example.opendatajabar.ui.screen.dataList.EditScreen
 import com.example.opendatajabar.ui.screen.home.HomeScreen
 import com.example.opendatajabar.ui.screen.profile.ProfileScreen
 import com.example.opendatajabar.ui.theme.OpenDataJabarTheme
