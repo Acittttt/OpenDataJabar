@@ -41,7 +41,7 @@ fun HomeScreen(viewModel: DataViewModel) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .shadow(8.dp, RoundedCornerShape(12.dp)),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onTertiary)
             ) {
                 Column(
                     modifier = Modifier

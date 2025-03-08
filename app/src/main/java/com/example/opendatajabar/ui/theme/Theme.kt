@@ -1,6 +1,5 @@
 package com.example.opendatajabar.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,7 +21,8 @@ private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF504B38),
     primaryContainer = Color(0xFFB9B28A),
     secondary = Color(0xFFEBE5C2),
-    tertiary = Color(0xFFF8F3D9)
+    tertiary = Color(0xFFF8F3D9),
+    onTertiary = Color(0xFFFBFFE4),
 )
 
 private val DarkColorScheme = darkColorScheme(
