@@ -4,32 +4,51 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.opendatajabar.data.local.DataEntity
 import com.example.opendatajabar.viewmodel.DataViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataEntryScreen(viewModel: DataViewModel) {
     val context = LocalContext.current
+
+    val dataList by viewModel.dataList.observeAsState(emptyList())
+
     var kodeProvinsi by remember { mutableStateOf("") }
     var namaProvinsi by remember { mutableStateOf("") }
-    var kodeKabupatenKota by remember { mutableStateOf("") }
+
     var namaKabupatenKota by remember { mutableStateOf("") }
+    var kodeKabupatenKota by remember { mutableStateOf("") }
+
+    var isNewCity by remember { mutableStateOf(false) }
+
     var total by remember { mutableStateOf("") }
     var satuan by remember { mutableStateOf("") }
     var tahun by remember { mutableStateOf("") }
-    var showDialog by remember { mutableStateOf(false) } // State untuk menampilkan pop-up
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(dataList) {
+        if (dataList.isNotEmpty()) {
+            kodeProvinsi = dataList.first().kodeProvinsi.toString()
+            namaProvinsi = dataList.first().namaProvinsi
+        }
+    }
+
+    val existingCities = dataList
+        .map { it.namaKabupatenKota to it.kodeKabupatenKota }
+        .distinct()
+
+    val cityOptions = existingCities.map { it.first } + "Tambah Baru"
+
+    var expandedCityDropdown by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -47,30 +66,89 @@ fun DataEntryScreen(viewModel: DataViewModel) {
             )
             OutlinedTextField(
                 value = kodeProvinsi,
-                onValueChange = { kodeProvinsi = it },
+                onValueChange = {},
                 label = { Text("Kode Provinsi") },
+                readOnly = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = namaProvinsi,
-                onValueChange = { namaProvinsi = it },
+                onValueChange = {},
                 label = { Text("Nama Provinsi") },
+                readOnly = true,
                 modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
-                value = kodeKabupatenKota,
-                onValueChange = { kodeKabupatenKota = it },
-                label = { Text("Kode Kabupaten/Kota") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+
+            ExposedDropdownMenuBox(
+                expanded = expandedCityDropdown,
+                onExpandedChange = { expandedCityDropdown = !expandedCityDropdown },
                 modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = namaKabupatenKota,
-                onValueChange = { namaKabupatenKota = it },
-                label = { Text("Nama Kabupaten/Kota") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            ) {
+                OutlinedTextField(
+                    readOnly = true,
+                    value = if (!isNewCity) namaKabupatenKota else "(Kabupaten/Kota Baru)",
+                    onValueChange = {},
+                    label = { Text("Pilih / Tambah Kab/Kota") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCityDropdown)
+                    },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = expandedCityDropdown,
+                    onDismissRequest = { expandedCityDropdown = false }
+                ) {
+                    cityOptions.forEach { cityName ->
+                        DropdownMenuItem(
+                            text = { Text(cityName) },
+                            onClick = {
+                                expandedCityDropdown = false
+                                if (cityName == "Tambah Kabupaten/Kota Baru") {
+                                    isNewCity = true
+                                    namaKabupatenKota = ""
+                                    kodeKabupatenKota = ""
+                                } else {
+                                    isNewCity = false
+                                    namaKabupatenKota = cityName
+                                    val kode = existingCities
+                                        .firstOrNull { it.first == cityName }
+                                        ?.second
+                                    kodeKabupatenKota = kode?.toString() ?: ""
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (isNewCity) {
+                OutlinedTextField(
+                    value = namaKabupatenKota,
+                    onValueChange = { namaKabupatenKota = it },
+                    label = { Text("Nama Kabupaten/Kota Baru") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = kodeKabupatenKota,
+                    onValueChange = { kodeKabupatenKota = it },
+                    label = { Text("Kode Kabupaten/Kota Baru") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                OutlinedTextField(
+                    value = kodeKabupatenKota,
+                    onValueChange = {},
+                    label = { Text("Kode Kabupaten/Kota") },
+                    readOnly = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             OutlinedTextField(
                 value = total,
                 onValueChange = { total = it },
@@ -91,14 +169,37 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+
             Button(
                 onClick = {
                     if (kodeProvinsi.isBlank() || namaProvinsi.isBlank() ||
-                        kodeKabupatenKota.isBlank() || namaKabupatenKota.isBlank() ||
+                        namaKabupatenKota.isBlank() || kodeKabupatenKota.isBlank() ||
                         total.isBlank() || satuan.isBlank() || tahun.isBlank()
                     ) {
                         showDialog = true
                     } else {
+                        if (isNewCity) {
+                            val existingCodes = dataList.map { it.kodeKabupatenKota }
+                            try {
+                                val newCode = kodeKabupatenKota.toInt()
+                                if (newCode in existingCodes) {
+                                    Toast.makeText(
+                                        context,
+                                        "Kode Kabupaten/Kota sudah digunakan!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@Button
+                                }
+                            } catch (e: NumberFormatException) {
+                                Toast.makeText(
+                                    context,
+                                    "Kode Kabupaten/Kota harus angka valid!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                return@Button
+                            }
+                        }
+
                         try {
                             val data = DataEntity(
                                 kodeProvinsi = kodeProvinsi.toInt(),
@@ -109,20 +210,27 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                                 satuan = satuan,
                                 tahun = tahun.toInt()
                             )
-
                             viewModel.insertData(data)
 
-                            kodeProvinsi = ""
-                            namaProvinsi = ""
-                            kodeKabupatenKota = ""
-                            namaKabupatenKota = ""
                             total = ""
                             satuan = ""
                             tahun = ""
-
-                            Toast.makeText(context, "Data berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+                            if (isNewCity) {
+                                namaKabupatenKota = ""
+                                kodeKabupatenKota = ""
+                                isNewCity = false
+                            }
+                            Toast.makeText(
+                                context,
+                                "Data berhasil ditambahkan",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } catch (e: NumberFormatException) {
-                            Toast.makeText(context, "Harap masukkan angka yang valid", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Harap masukkan angka yang valid",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 },
@@ -137,9 +245,7 @@ fun DataEntryScreen(viewModel: DataViewModel) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
-                Button(
-                    onClick = { showDialog = false }
-                ) {
+                Button(onClick = { showDialog = false }) {
                     Text("OK")
                 }
             },
