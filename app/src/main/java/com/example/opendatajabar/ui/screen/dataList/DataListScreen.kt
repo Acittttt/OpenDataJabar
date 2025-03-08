@@ -37,43 +37,52 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
         listOf("Semua") + dataList.map { it.namaKabupatenKota }.distinct()
     }
 
+    var currentPage by remember { mutableStateOf(0) }
+
     val filteredData = remember(dataList, selectedFilter) {
         if (selectedFilter == "Semua") dataList else dataList.filter { it.namaKabupatenKota == selectedFilter }
     }
 
+    val totalPages = if (filteredData.isEmpty()) 1 else ((filteredData.size - 1) / 10) + 1
+
+    val paginatedData = filteredData.drop(currentPage * 10).take(10)
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Filter:",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    DropdownMenuFilter(
+                        selectedFilter = selectedFilter,
+                        options = uniqueKabupatenKota,
+                        onFilterSelected = {
+                            selectedFilter = it
+                            currentPage = 0
+                        }
+                    )
+                }
                 Text(
-                    text = "Filter:",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                DropdownMenuFilter(
-                    selectedFilter = selectedFilter,
-                    options = uniqueKabupatenKota,
-                    onFilterSelected = { selectedFilter = it }
+                    text = "Jumlah Data: ${filteredData.size}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Jumlah Data: ${filteredData.size}",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
-            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -91,15 +100,21 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "No Data Available", style = MaterialTheme.typography.headlineMedium)
+                        Text(
+                            text = "No Data Available",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
                     }
                 }
                 else -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp)
                     ) {
-                        items(filteredData) { item ->
+                        items(paginatedData) { item ->
                             DataItemCard(
                                 item = item,
                                 onEditClick = { navController.navigate("edit/${item.id}") },
@@ -108,6 +123,28 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
                                     showDialog = true
                                 }
                             )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = { if (currentPage > 0) currentPage-- },
+                            enabled = currentPage > 0
+                        ) {
+                            Text("Previous")
+                        }
+                        Text("Page ${currentPage + 1} of $totalPages")
+                        Button(
+                            onClick = { if (currentPage < totalPages - 1) currentPage++ },
+                            enabled = currentPage < totalPages - 1
+                        ) {
+                            Text("Next")
                         }
                     }
                 }
@@ -138,10 +175,11 @@ fun DropdownMenuFilter(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box {
+    Box(modifier = Modifier.wrapContentWidth()) {
         Button(
             onClick = { expanded = true },
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 3.dp, vertical = 8.dp)
         ) {
             Text(selectedFilter)
         }
@@ -231,7 +269,10 @@ fun DeleteConfirmationDialog(
             title = { Text("Konfirmasi Hapus") },
             text = { Text("Apakah Anda Yakin Untuk Menghapus Data Ini?") },
             confirmButton = {
-                Button(onClick = onConfirm, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
+                Button(
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
                     Text("Ya")
                 }
             },

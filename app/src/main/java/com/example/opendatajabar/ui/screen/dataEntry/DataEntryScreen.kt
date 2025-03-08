@@ -89,7 +89,7 @@ fun DataEntryScreen(viewModel: DataViewModel) {
                     readOnly = true,
                     value = if (!isNewCity) namaKabupatenKota else "(Kabupaten/Kota Baru)",
                     onValueChange = {},
-                    label = { Text("Pilih / Tambah Kab/Kota") },
+                    label = { Text("Pilih/Tambah Kab/Kota") },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCityDropdown)
                     },
