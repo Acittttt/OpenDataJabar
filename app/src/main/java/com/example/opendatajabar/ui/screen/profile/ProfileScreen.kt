@@ -18,9 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.opendatajabar.ui.theme.GradientBackground
 import com.example.opendatajabar.viewmodel.ProfileViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
     val profile by viewModel.profile.collectAsState()
@@ -30,12 +30,10 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
         BitmapFactory.decodeByteArray(imageData, 0, imageData.size)?.asImageBitmap()
     }
 
-    Scaffold(
-    ) { paddingValues ->
+    GradientBackground {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(16.dp),
             contentAlignment = Alignment.TopCenter
         ) {
@@ -91,6 +89,37 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Edit Profile")
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Aplikasi ini dibuat oleh Rasyiid Raafi Shaban",
+                            fontSize = 10.sp,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "NIM 231511027",
+                            fontSize = 10.sp,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "D3 - Teknik Informatika",
+                            fontSize = 10.sp,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "D3 - 2A Angkatan 2023",
+                            fontSize = 10.sp,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         }

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.opendatajabar.data.local.DataEntity
+import com.example.opendatajabar.ui.theme.GradientBackground
 import com.example.opendatajabar.viewmodel.DataViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,114 +63,118 @@ fun EditScreen(viewModel: DataViewModel, navController: NavController, dataId: I
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            OutlinedTextField(
-                value = kodeProvinsi,
-                onValueChange = {},
-                label = { Text("Kode Provinsi") },
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = namaProvinsi,
-                onValueChange = {},
-                label = { Text("Nama Provinsi") },
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = kodeKabupatenKota,
-                onValueChange = {
-                    kodeKabupatenKota = it
-                    isDataChanged = true
-                },
-                label = { Text("Kode Kabupaten/Kota") },
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = namaKabupatenKota,
-                onValueChange = {
-                    namaKabupatenKota = it
-                    isDataChanged = true
-                },
-                label = { Text("Nama Kabupaten/Kota") },
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = total,
-                onValueChange = {
-                    total = it
-                    isDataChanged = true
-                },
-                label = { Text("Total") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = satuan,
-                onValueChange = {
-                    satuan = it
-                    isDataChanged = true
-                },
-                label = { Text("Satuan") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = tahun,
-                onValueChange = {
-                    tahun = it
-                    isDataChanged = true
-                },
-                label = { Text("Tahun") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Button(
-                onClick = {
-                    if (kodeKabupatenKota.isBlank() || namaKabupatenKota.isBlank() ||
-                        total.isBlank() || satuan.isBlank() || tahun.isBlank()
-                    ) {
-                        showDialog = true
-                    } else {
-                        viewModel.updateData(
-                            DataEntity(
-                                id = dataId,
-                                kodeProvinsi = kodeProvinsi.toInt(),
-                                namaProvinsi = namaProvinsi,
-                                kodeKabupatenKota = kodeKabupatenKota.toInt(),
-                                namaKabupatenKota = namaKabupatenKota,
-                                rataRataLamaSekolah = total.toDouble(),
-                                satuan = satuan,
-                                tahun = tahun.toInt()
-                            )
-                        )
-
-                        navController.popBackStack()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isDataLoaded
+        GradientBackground {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("Simpan Perubahan")
+                OutlinedTextField(
+                    value = kodeProvinsi,
+                    onValueChange = {},
+                    label = { Text("Kode Provinsi") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = namaProvinsi,
+                    onValueChange = {},
+                    label = { Text("Nama Provinsi") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = kodeKabupatenKota,
+                    onValueChange = {
+                        kodeKabupatenKota = it
+                        isDataChanged = true
+                    },
+                    label = { Text("Kode Kabupaten/Kota") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = namaKabupatenKota,
+                    onValueChange = {
+                        namaKabupatenKota = it
+                        isDataChanged = true
+                    },
+                    label = { Text("Nama Kabupaten/Kota") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = total,
+                    onValueChange = {
+                        total = it
+                        isDataChanged = true
+                    },
+                    label = { Text("Total") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = satuan,
+                    onValueChange = {
+                        satuan = it
+                        isDataChanged = true
+                    },
+                    label = { Text("Satuan") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = tahun,
+                    onValueChange = {
+                        tahun = it
+                        isDataChanged = true
+                    },
+                    label = { Text("Tahun") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Button(
+                    onClick = {
+                        if (kodeKabupatenKota.isBlank() || namaKabupatenKota.isBlank() ||
+                            total.isBlank() || satuan.isBlank() || tahun.isBlank()
+                        ) {
+                            showDialog = true
+                        } else {
+                            viewModel.updateData(
+                                DataEntity(
+                                    id = dataId,
+                                    kodeProvinsi = kodeProvinsi.toInt(),
+                                    namaProvinsi = namaProvinsi,
+                                    kodeKabupatenKota = kodeKabupatenKota.toInt(),
+                                    namaKabupatenKota = namaKabupatenKota,
+                                    rataRataLamaSekolah = total.toDouble(),
+                                    satuan = satuan,
+                                    tahun = tahun.toInt()
+                                )
+                            )
+                            navController.popBackStack()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isDataLoaded
+                ) {
+                    Text("Simpan Perubahan")
+                }
             }
         }
     }

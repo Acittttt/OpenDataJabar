@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.opendatajabar.data.local.DataEntity
+import com.example.opendatajabar.ui.theme.GradientBackground
 import com.example.opendatajabar.viewmodel.DataViewModel
 import kotlinx.coroutines.launch
 
@@ -50,101 +51,103 @@ fun DataListScreen(navController: NavHostController, viewModel: DataViewModel) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        GradientBackground {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Filter:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    DropdownMenuFilter(
-                        selectedFilter = selectedFilter,
-                        options = uniqueKabupatenKota,
-                        onFilterSelected = {
-                            selectedFilter = it
-                            currentPage = 0
-                        }
-                    )
-                }
-                Text(
-                    text = "Jumlah Data: ${filteredData.size}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            when {
-                isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                filteredData.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "No Data Available",
-                            style = MaterialTheme.typography.headlineMedium
+                            text = "Filter:",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        DropdownMenuFilter(
+                            selectedFilter = selectedFilter,
+                            options = uniqueKabupatenKota,
+                            onFilterSelected = {
+                                selectedFilter = it
+                                currentPage = 0
+                            }
                         )
                     }
+                    Text(
+                        text = "Jumlah Data: ${filteredData.size}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp)
-                    ) {
-                        items(paginatedData) { item ->
-                            DataItemCard(
-                                item = item,
-                                onEditClick = { navController.navigate("edit/${item.id}") },
-                                onDeleteClick = {
-                                    selectedItem = item
-                                    showDialog = true
-                                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                when {
+                    isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    filteredData.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No Data Available",
+                                style = MaterialTheme.typography.headlineMedium
                             )
                         }
                     }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Button(
-                            onClick = { if (currentPage > 0) currentPage-- },
-                            enabled = currentPage > 0
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp)
                         ) {
-                            Text("Previous")
+                            items(paginatedData) { item ->
+                                DataItemCard(
+                                    item = item,
+                                    onEditClick = { navController.navigate("edit/${item.id}") },
+                                    onDeleteClick = {
+                                        selectedItem = item
+                                        showDialog = true
+                                    }
+                                )
+                            }
                         }
-                        Text("Page ${currentPage + 1} of $totalPages")
-                        Button(
-                            onClick = { if (currentPage < totalPages - 1) currentPage++ },
-                            enabled = currentPage < totalPages - 1
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Next")
+                            Button(
+                                onClick = { if (currentPage > 0) currentPage-- },
+                                enabled = currentPage > 0
+                            ) {
+                                Text("Previous")
+                            }
+                            Text("Page ${currentPage + 1} of $totalPages")
+                            Button(
+                                onClick = { if (currentPage < totalPages - 1) currentPage++ },
+                                enabled = currentPage < totalPages - 1
+                            ) {
+                                Text("Next")
+                            }
                         }
                     }
                 }

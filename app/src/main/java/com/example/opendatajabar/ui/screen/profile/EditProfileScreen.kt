@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.opendatajabar.ui.theme.GradientBackground
 import com.example.opendatajabar.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,105 +97,112 @@ fun EditProfileScreen(navController: NavController, viewModel: ProfileViewModel)
                     }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+        GradientBackground {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                contentAlignment = Alignment.TopCenter
             ) {
-                Card(
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .size(160.dp)
-                        .clickable { imagePickerLauncher.launch("image/*") },
-                    shape = CircleShape,
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    if (profileImageBitmap != null) {
-                        Image(
-                            bitmap = profileImageBitmap,
-                            contentDescription = "Profile Picture",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Default Profile Picture",
-                                tint = Color.Gray,
-                                modifier = Modifier.size(100.dp)
+                    Card(
+                        modifier = Modifier
+                            .size(160.dp)
+                            .clickable { imagePickerLauncher.launch("image/*") },
+                        shape = CircleShape,
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    ) {
+                        if (profileImageBitmap != null) {
+                            Image(
+                                bitmap = profileImageBitmap,
+                                contentDescription = "Profile Picture",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
                             )
+                        } else {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Default Profile Picture",
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(100.dp)
+                                )
+                            }
                         }
                     }
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-                OutlinedTextField(
-                    value = studentName,
-                    onValueChange = {
-                        studentName = it
-                        hasChanges = true
-                    },
-                    label = { Text("Nama Lengkap") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-                )
-                OutlinedTextField(
-                    value = studentId,
-                    onValueChange = {
-                        studentId = it
-                        hasChanges = true
-                    },
-                    label = { Text("NIM") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-                OutlinedTextField(
-                    value = studentEmail,
-                    onValueChange = {
-                        studentEmail = it
-                        hasChanges = true
-                    },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        val nameRegex = Regex("^[A-Za-z ]+\$")
-                        val idRegex = Regex("^[0-9]+\$")
-                        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$")
+                    Spacer(modifier = Modifier.height(20.dp))
+                    OutlinedTextField(
+                        value = studentName,
+                        onValueChange = {
+                            studentName = it
+                            hasChanges = true
+                        },
+                        label = { Text("Nama Lengkap") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    )
+                    OutlinedTextField(
+                        value = studentId,
+                        onValueChange = {
+                            studentId = it
+                            hasChanges = true
+                        },
+                        label = { Text("NIM") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    OutlinedTextField(
+                        value = studentEmail,
+                        onValueChange = {
+                            studentEmail = it
+                            hasChanges = true
+                        },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            val nameRegex = Regex("^[A-Za-z ]+\$")
+                            val idRegex = Regex("^[0-9]+\$")
+                            val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$")
 
-                        if (!nameRegex.matches(studentName)) {
-                            Toast.makeText(context, "Student Name hanya boleh huruf", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-                        if (!idRegex.matches(studentId)) {
-                            Toast.makeText(context, "Student ID harus angka", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-                        if (!emailRegex.matches(studentEmail)) {
-                            Toast.makeText(context, "Format email tidak valid", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
+                            if (!nameRegex.matches(studentName)) {
+                                Toast.makeText(context, "Student Name hanya boleh huruf", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            if (!idRegex.matches(studentId)) {
+                                Toast.makeText(context, "Student ID harus angka", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            if (!emailRegex.matches(studentEmail)) {
+                                Toast.makeText(context, "Format email tidak valid", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
 
-                        viewModel.updateProfile(studentName, studentId, studentEmail)
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Save")
+                            viewModel.updateProfile(studentName, studentId, studentEmail)
+                            navController.popBackStack()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Save")
+                    }
                 }
             }
         }

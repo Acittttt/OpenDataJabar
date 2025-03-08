@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.opendatajabar.data.local.DataEntity
+import com.example.opendatajabar.ui.theme.GradientBackground
 import com.example.opendatajabar.viewmodel.DataViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,10 +51,7 @@ fun DataEntryScreen(viewModel: DataViewModel) {
 
     var expandedCityDropdown by remember { mutableStateOf(false) }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
+    GradientBackground {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
