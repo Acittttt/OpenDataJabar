@@ -47,7 +47,7 @@ fun DataEntryScreen(viewModel: DataViewModel) {
         .map { it.namaKabupatenKota to it.kodeKabupatenKota }
         .distinct()
 
-    val cityOptions = existingCities.map { it.first } + "Tambah Baru"
+    val cityOptions = existingCities.map { it.first } + "Tambah Kabupaten/Kota Baru"
 
     var expandedCityDropdown by remember { mutableStateOf(false) }
 
