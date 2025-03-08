@@ -1,6 +1,7 @@
 package com.example.opendatajabar
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -54,10 +55,10 @@ fun DataOpenJabarApp(
             transitionSpec = {
                 slideInHorizontally(
                     initialOffsetX = { fullWidth -> fullWidth },
-                    animationSpec = tween(500)
+                    animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing)
                 ) with slideOutHorizontally(
                     targetOffsetX = { fullWidth -> -fullWidth },
-                    animationSpec = tween(500)
+                    animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing)
                 )
             },
             label = "ScreenTransition"
