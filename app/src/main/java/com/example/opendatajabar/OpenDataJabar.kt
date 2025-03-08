@@ -25,6 +25,7 @@ import com.example.opendatajabar.ui.screen.dataList.DataListScreen
 import com.example.opendatajabar.ui.screen.dataList.EditScreen
 import com.example.opendatajabar.ui.screen.home.HomeScreen
 import com.example.opendatajabar.ui.screen.profile.ProfileScreen
+import com.example.opendatajabar.ui.screen.profile.EditProfileScreen
 import com.example.opendatajabar.ui.theme.OpenDataJabarTheme
 import com.example.opendatajabar.viewmodel.DataViewModel
 import com.example.opendatajabar.viewmodel.ProfileViewModel
@@ -52,10 +53,10 @@ fun DataOpenJabarApp(
             targetState = currentRoute,
             transitionSpec = {
                 slideInHorizontally(
-                    initialOffsetX = { fullWidth -> fullWidth }, // Geser dari kanan
+                    initialOffsetX = { fullWidth -> fullWidth },
                     animationSpec = tween(500)
                 ) with slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> -fullWidth }, // Geser ke kiri
+                    targetOffsetX = { fullWidth -> -fullWidth },
                     animationSpec = tween(500)
                 )
             },
@@ -86,7 +87,14 @@ fun DataOpenJabarApp(
                     }
                 }
                 composable(Screen.Profile.route) {
-                    if (targetScreen == Screen.Profile.route) ProfileScreen(viewModel = profileViewModel)
+                    if (targetScreen == Screen.Profile.route) {
+                        ProfileScreen(navController = navController, viewModel = profileViewModel)
+                    }
+                }
+                composable("edit_profile") {
+                    if (targetScreen == "edit_profile") {
+                        EditProfileScreen(navController = navController, viewModel = profileViewModel)
+                    }
                 }
             }
         }
@@ -100,8 +108,8 @@ private fun BottomBar(
 ) {
     NavigationBar(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.primaryContainer, // Warna latar belakang navbar
-        contentColor = MaterialTheme.colorScheme.primary // Warna konten di dalam navbar
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
