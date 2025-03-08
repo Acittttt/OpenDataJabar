@@ -2,6 +2,7 @@ package com.example.opendatajabar.ui.screen.profile
 
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
@@ -145,7 +146,7 @@ fun EditProfileScreen(navController: NavController, viewModel: ProfileViewModel)
                         studentName = it
                         hasChanges = true
                     },
-                    label = { Text("Student Name") },
+                    label = { Text("Nama Lengkap") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
@@ -155,7 +156,7 @@ fun EditProfileScreen(navController: NavController, viewModel: ProfileViewModel)
                         studentId = it
                         hasChanges = true
                     },
-                    label = { Text("Student ID") },
+                    label = { Text("NIM") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -165,12 +166,29 @@ fun EditProfileScreen(navController: NavController, viewModel: ProfileViewModel)
                         studentEmail = it
                         hasChanges = true
                     },
-                    label = { Text("Student Email") },
+                    label = { Text("Email") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
+                        val nameRegex = Regex("^[A-Za-z ]+\$")
+                        val idRegex = Regex("^[0-9]+\$")
+                        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$")
+
+                        if (!nameRegex.matches(studentName)) {
+                            Toast.makeText(context, "Student Name hanya boleh huruf", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (!idRegex.matches(studentId)) {
+                            Toast.makeText(context, "Student ID harus angka", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (!emailRegex.matches(studentEmail)) {
+                            Toast.makeText(context, "Format email tidak valid", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
                         viewModel.updateProfile(studentName, studentId, studentEmail)
                         navController.popBackStack()
                     },

@@ -66,6 +66,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun isEmailUnique(email: String): Boolean {
+        return email == profile.value?.email
+    }
+
     private fun saveImageToInternalStorage(uri: Uri, context: Context): File {
         val inputStream = context.contentResolver.openInputStream(uri)!!
         val file = File(context.filesDir, "profile.jpg")
